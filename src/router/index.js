@@ -23,6 +23,11 @@ const routes = [
     path: '/no-keep-alive',
     name: 'NoKeepAlive',
     component: () => import('../views/NoKeepAlive.vue')
+  },
+  {
+    path: '/user-profile',
+    name: 'UserProfile',
+    component: () => import('../views/UserProfile.vue')
   }
 ];
 

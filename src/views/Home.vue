@@ -25,6 +25,15 @@
         <el-button type="info" @click="goToWithParams">带参数跳转</el-button>
         <el-button type="danger" @click="replaceRoute">替换当前路由</el-button>
       </div>
+      
+      <div class="jump-section">
+        <h4>4. 特殊场景 - 同组件不同参数 (keep-alive)</h4>
+        <el-button type="success" @click="goToUser1">查看用户1 (张三)</el-button>
+        <el-button type="warning" @click="goToUser2">查看用户2 (李四)</el-button>
+        <p class="tip-text">
+          <small>两个按钮跳转到同一个组件，但query参数不同，且组件被keep-alive缓存</small>
+        </p>
+      </div>
     </div>
   </div>
 </template>
@@ -50,6 +59,26 @@ export default {
     },
     replaceRoute() {
       this.$router.replace('/about')
+    },
+    goToUser1() {
+      this.$router.push({
+        path: '/user-profile',
+        query: { 
+          id: '1',
+          from: 'home',
+          timestamp: Date.now()
+        }
+      })
+    },
+    goToUser2() {
+      this.$router.push({
+        path: '/user-profile',
+        query: { 
+          id: '2',
+          from: 'home',
+          timestamp: Date.now()
+        }
+      })
     }
   }
 }
