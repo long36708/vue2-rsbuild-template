@@ -1,11 +1,11 @@
 import path from 'node:path'
-import { pluginVue } from '@rsbuild/plugin-vue'
+import { pluginVue2 } from '@rsbuild/plugin-vue2'
 import { defineConfig } from '@rstest/core'
 
 // Docs: https://rstest.rs/config/
 export default defineConfig({
   plugins: [
-    pluginVue({
+    pluginVue2({
       vueLoaderOptions: {
         isServerBuild: false,
       },
