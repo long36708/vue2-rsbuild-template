@@ -10,6 +10,7 @@
     "test": "rstest",
     "test:watch": "rstest --watch",
     "lint": "eslint .",
+    "taze:f": "taze -f",
     "lint:fix": "eslint . --fix",
     "prepare": "lefthook install"
   },
@@ -20,16 +21,16 @@
     "vue-template-compiler": "2.7.16"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^7.2.0",
+    "@antfu/eslint-config": "^7.7.3",
     "@commitlint/cli": "^20.3.1",
     "@commitlint/config-conventional": "^20.3.1",
-    "@rsbuild/core": "^1.7.2",
+    "@rsbuild/core": "^1.7.6",
     "@rsbuild/plugin-vue2": "^1.0.4",
-    "@rstest/core": "^0.8.1",
+    "@rstest/core": "^0.8.5",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/vue": "^5.9.0",
-    "eslint-plugin-oxlint": "^1.42.0",
-    "lefthook": "^2.0.16"
+    "eslint-plugin-oxlint": "^1.73.0",
+    "lefthook": "^2.1.10"
   }
 }
