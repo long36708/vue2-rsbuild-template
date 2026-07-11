@@ -10,7 +10,7 @@
  *
  * @type {number}
  */
-let instance = 0;
+let instance = 0
 
 /**
  * 创建一个新的 GlobalKeepAlive 组件
@@ -20,11 +20,11 @@ let instance = 0;
  */
 export function createGlobalKeepAlive(name) {
   // 新创建的 GlobalKeepAlive 组件绑定的唯一缓存
-  const cache = new KeepAliveCache();
-  Object.freeze(cache);
+  const cache = new KeepAliveCache()
+  Object.freeze(cache)
 
   // 新创建的 GlobalKeepAlive 组件名
-  const componentName = 'GlobalKeepAlive' + firstCharToUpper(name || ('Instance' + (instance++)));
+  const componentName = `GlobalKeepAlive${firstCharToUpper(name || (`Instance${instance++}`))}`
 
   // 新创建的 GlobalKeepAlive 组件配置对象
   return {
@@ -33,56 +33,57 @@ export function createGlobalKeepAlive(name) {
       // 手工指定缓存的 key
       cacheKey: String,
       // 组件名是否缓存的过滤器
-      cacheFilter: [Function, RegExp]
+      cacheFilter: [Function, RegExp],
     },
     data() {
       return {
-        cache
-      };
+        cache,
+      }
     },
     render() {
-      const slot = this.$slots.default;
-      const vnode = getFirstComponentChild(slot);
+      const slot = this.$slots.default
+      const vnode = getFirstComponentChild(slot)
       if (vnode && vnode.componentOptions && this.shouldCache(vnode)) {
-        this.addToCache(vnode);
+        this.addToCache(vnode)
       }
-      return vnode || (slot && slot[0]);
+      return vnode || (slot && slot[0])
     },
     methods: {
       shouldCache(vnode) {
-        const componentOptions = vnode && vnode.componentOptions;
+        const componentOptions = vnode && vnode.componentOptions
         if (!componentOptions) {
-          throw new TypeError('invalid VNode object');
+          throw new TypeError('invalid VNode object')
         }
 
         if (typeof this.cacheFilter === 'function') {
-          const name = componentOptions.Ctor.options.name;
-          const options = componentOptions.Ctor.options;
-          return !!(name && this.cacheFilter(name, options));
+          const name = componentOptions.Ctor.options.name
+          const options = componentOptions.Ctor.options
+          return !!(name && this.cacheFilter(name, options))
         }
         if (this.cacheFilter instanceof RegExp) {
-          const name = componentOptions.Ctor.options.name;
-          return !!(name && this.cacheFilter.test(name));
+          const name = componentOptions.Ctor.options.name
+          return !!(name && this.cacheFilter.test(name))
         }
-        return true;
+        return true
       },
       addToCache(vnode) {
-        const componentOptions = vnode && vnode.componentOptions;
+        const componentOptions = vnode && vnode.componentOptions
         if (!componentOptions) {
-          throw new TypeError('invalid VNode object');
+          throw new TypeError('invalid VNode object')
         }
 
-        let key;
+        let key
         if (this.cacheKey != null) {
-          key = String(this.cacheKey);
-        } else {
-          key = `${componentOptions.Ctor.options.name}#${componentOptions.Ctor.cid}`;
+          key = String(this.cacheKey)
         }
-        this.cache.put(key, vnode);
-      }
+        else {
+          key = `${componentOptions.Ctor.options.name}#${componentOptions.Ctor.cid}`
+        }
+        this.cache.put(key, vnode)
+      },
     },
-    _globalCache: cache
-  };
+    _globalCache: cache,
+  }
 }
 
 /**
@@ -90,64 +91,67 @@ export function createGlobalKeepAlive(name) {
  */
 class KeepAliveCache {
   constructor() {
-    this.cache = new Map();
+    this.cache = new Map()
   }
 
   /**
-     * 缓存键值遍历
-     *
-     * @returns {Iterator<string>}
-     */
+   * 缓存键值遍历
+   *
+   * @returns {Iterator<string>}
+   */
   keys() {
-    return this.cache.keys();
+    return this.cache.keys()
   }
 
   /**
-     * 添加 VNode 缓存项
-     *
-     * @param {string} key 缓存键值
-     * @param {VNode} vnode 缓存 VNode 对象
-     */
+   * 添加 VNode 缓存项
+   *
+   * @param {string} key 缓存键值
+   * @param {VNode} vnode 缓存 VNode 对象
+   */
   put(key, vnode) {
-    const cached = this.cache.get(key);
+    const cached = this.cache.get(key)
     if (cached) {
-      vnode.componentInstance = cached.componentInstance;
-      this.cache.delete(key);
-      this.cache.set(key, cached);
-    } else {
-      this.cache.set(key, vnode);
+      vnode.componentInstance = cached.componentInstance
+      this.cache.delete(key)
+      this.cache.set(key, cached)
     }
-    vnode.data.keepAlive = true;
+    else {
+      this.cache.set(key, vnode)
+    }
+    vnode.data.keepAlive = true
   }
 
   /**
-     * 删除 VNode 缓存项
-     *
-     * @param {string} key 缓存键值
-     */
+   * 删除 VNode 缓存项
+   *
+   * @param {string} key 缓存键值
+   */
   remove(key) {
-    const cached = this.cache.get(key);
+    const cached = this.cache.get(key)
     if (cached) {
       if (cached.componentInstance) {
-        cached.componentInstance.$destroy();
-      } else {
-        throw new Error('cannot destroy component instance of a fresh-created vue virtual node');
+        cached.componentInstance.$destroy()
+      }
+      else {
+        throw new Error('cannot destroy component instance of a fresh-created vue virtual node')
       }
     }
-    this.cache.delete(key);
+    this.cache.delete(key)
   }
 
   /**
-     * 清除 VNode 缓存
-     *
-     * @param {?number} keep 最多保留近期多少项缓存
-     */
+   * 清除 VNode 缓存
+   *
+   * @param {?number} keep 最多保留近期多少项缓存
+   */
   clear(keep) {
-    keep = (keep ? Math.min(Math.max(keep, 0), this.cache.size) : 0);
-    let count = this.cache.size - keep;
+    keep = (keep ? Math.min(Math.max(keep, 0), this.cache.size) : 0)
+    let count = this.cache.size - keep
     for (const key of this.cache.keys()) {
-      if (!(count--)) break;
-      this.remove(key);
+      if (!(count--))
+        break
+      this.remove(key)
     }
   }
 }
@@ -161,9 +165,9 @@ class KeepAliveCache {
 function getFirstComponentChild(children) {
   if (Array.isArray(children)) {
     for (let i = 0; i < children.length; i++) {
-      const child = children[i];
+      const child = children[i]
       if (child != null && (child.componentOptions != null || (child.isComment && child.asyncFactory))) {
-        return child;
+        return child
       }
     }
   }
@@ -177,9 +181,9 @@ function getFirstComponentChild(children) {
  */
 function firstCharToUpper(name) {
   if (name.length > 0) {
-    return name.slice(0, 1).toUpperCase() + name.slice(1);
+    return name.slice(0, 1).toUpperCase() + name.slice(1)
   }
-  return name;
+  return name
 }
 
 /**
@@ -187,4 +191,4 @@ function firstCharToUpper(name) {
  *
  * @type {ComponentOptions<Vue>}
  */
-export default createGlobalKeepAlive('Default');
+export default createGlobalKeepAlive('Default')

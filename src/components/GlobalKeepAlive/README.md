@@ -18,26 +18,19 @@ GlobalKeepAlive 是一个自定义的 Vue 2.x keep-alive 组件，它提供了�
 ### 导入组件
 
 ```javascript
-import GlobalKeepAlive from './components/GlobalKeepAlive';
+import GlobalKeepAlive from './components/GlobalKeepAlive'
 
 // 或者创建命名实例
-import { createGlobalKeepAlive } from './components/GlobalKeepAlive';
-const MyKeepAlive = createGlobalKeepAlive('MyCache');
+import { createGlobalKeepAlive } from './components/GlobalKeepAlive'
+
+const MyKeepAlive = createGlobalKeepAlive('MyCache')
 ```
 
 ### 简单使用
 
 ```vue
-<template>
-  <div>
-    <GlobalKeepAlive>
-      <router-view />
-    </GlobalKeepAlive>
-  </div>
-</template>
-
 <script>
-import GlobalKeepAlive from '@/components/GlobalKeepAlive';
+import GlobalKeepAlive from '@/components/GlobalKeepAlive'
 
 export default {
   components: {
@@ -45,6 +38,14 @@ export default {
   }
 }
 </script>
+
+<template>
+  <div>
+    <GlobalKeepAlive>
+      <router-view />
+    </GlobalKeepAlive>
+  </div>
+</template>
 ```
 
 ## API 参考
@@ -72,8 +73,8 @@ export default {
 通过 `_globalCache` 属性可以直接访问缓存实例：
 
 ```javascript
-this.$refs.keepAlive._globalCache.keys();
-this.$refs.keepAlive._globalCache.remove('ComponentName#123');
+this.$refs.keepAlive._globalCache.keys()
+this.$refs.keepAlive._globalCache.remove('ComponentName#123')
 ```
 
 ## 高级用法
@@ -83,31 +84,31 @@ this.$refs.keepAlive._globalCache.remove('ComponentName#123');
 #### 使用函数过滤器
 
 ```vue
-<template>
-  <GlobalKeepAlive :cacheFilter="shouldCache">
-    <router-view />
-  </GlobalKeepAlive>
-</template>
-
 <script>
 export default {
   methods: {
     shouldCache(name, options) {
       // 只缓存名称以 'User' 开头的组件
       if (name && name.startsWith('User')) {
-        return true;
+        return true
       }
-      
+
       // 根据组件选项进行复杂判断
       if (options && options.keepAlive === true) {
-        return true;
+        return true
       }
-      
-      return false;
+
+      return false
     }
   }
 }
 </script>
+
+<template>
+  <GlobalKeepAlive :cache-filter="shouldCache">
+    <router-view />
+  </GlobalKeepAlive>
+</template>
 ```
 
 #### 使用正则表达式过滤器
@@ -115,7 +116,7 @@ export default {
 ```vue
 <template>
   <!-- 缓存所有名称以 'Page' 结尾的组件 -->
-  <GlobalKeepAlive :cacheFilter="/Page$/">
+  <GlobalKeepAlive :cache-filter="/Page$/">
     <router-view />
   </GlobalKeepAlive>
 </template>
@@ -124,12 +125,6 @@ export default {
 #### 实现类似原生 keep-alive 的 include/exclude
 
 ```vue
-<template>
-  <GlobalKeepAlive :cacheFilter="filterComponents">
-    <router-view />
-  </GlobalKeepAlive>
-</template>
-
 <script>
 export default {
   data() {
@@ -142,87 +137,101 @@ export default {
     filterComponents(name) {
       // 先检查排除列表
       if (this.excludeList.includes(name)) {
-        return false;
+        return false
       }
-      
+
       // 再检查包含列表
-      return this.includeList.includes(name);
+      return this.includeList.includes(name)
     }
   }
 }
 </script>
+
+<template>
+  <GlobalKeepAlive :cache-filter="filterComponents">
+    <router-view />
+  </GlobalKeepAlive>
+</template>
 ```
 
 ### 2. 自定义缓存键
 
 ```vue
-<template>
-  <!-- 使用动态缓存键，可用于版本控制或用户隔离 -->
-  <GlobalKeepAlive :cacheKey="dynamicCacheKey">
-    <router-view />
-  </GlobalKeepAlive>
-</template>
-
 <script>
 export default {
   computed: {
     dynamicCacheKey() {
       // 可以基于用户ID、版本号等生成缓存键
-      return `user_${this.$store.state.user.id}_v1.0`;
+      return `user_${this.$store.state.user.id}_v1.0`
     }
   }
 }
 </script>
+
+<template>
+  <!-- 使用动态缓存键，可用于版本控制或用户隔离 -->
+  <GlobalKeepAlive :cache-key="dynamicCacheKey">
+    <router-view />
+  </GlobalKeepAlive>
+</template>
 ```
 
 ### 3. 手动缓存管理
 
 ```vue
+<script>
+export default {
+  methods: {
+    clearAllCache() {
+      this.$refs.keepAlive._globalCache.clear()
+    },
+
+    clearOldCache() {
+      this.$refs.keepAlive._globalCache.clear(5) // 保留最近5个
+    },
+
+    removeCache(componentName) {
+      // 默认缓存键格式是 `${componentName}#${cid}`
+      // 这里我们假设只有一个匹配
+      const cacheKeys = Array.from(this.$refs.keepAlive._globalCache.keys())
+      const matchedKeys = cacheKeys.filter(key => key.startsWith(componentName))
+
+      matchedKeys.forEach((key) => {
+        this.$refs.keepAlive._globalCache.remove(key)
+      })
+    },
+
+    listCache() {
+      const keys = Array.from(this.$refs.keepAlive._globalCache.keys())
+      console.log('当前缓存组件:', keys)
+      alert(`当前缓存组件: ${keys.join(', ')}`)
+    }
+  }
+}
+</script>
+
 <template>
   <div>
     <GlobalKeepAlive ref="keepAlive">
       <router-view />
     </GlobalKeepAlive>
-    
+
     <div class="cache-controls">
-      <button @click="clearAllCache">清除所有缓存</button>
-      <button @click="clearOldCache">保留最近5个缓存</button>
-      <button @click="removeCache('UserProfilePage')">移除特定缓存</button>
-      <button @click="listCache">列出所有缓存</button>
+      <button @click="clearAllCache">
+        清除所有缓存
+      </button>
+      <button @click="clearOldCache">
+        保留最近5个缓存
+      </button>
+      <button @click="removeCache('UserProfilePage')">
+        移除特定缓存
+      </button>
+      <button @click="listCache">
+        列出所有缓存
+      </button>
     </div>
   </div>
 </template>
-
-<script>
-export default {
-  methods: {
-    clearAllCache() {
-      this.$refs.keepAlive._globalCache.clear();
-    },
-    
-    clearOldCache() {
-      this.$refs.keepAlive._globalCache.clear(5); // 保留最近5个
-    },
-    
-    removeCache(componentName) {
-      // 默认缓存键格式是 `${componentName}#${cid}`
-      // 这里我们假设只有一个匹配
-      const cacheKeys = Array.from(this.$refs.keepAlive._globalCache.keys());
-      const matchedKeys = cacheKeys.filter(key => key.startsWith(componentName));
-      
-      matchedKeys.forEach(key => {
-        this.$refs.keepAlive._globalCache.remove(key);
-      });
-    },
-    
-    listCache() {
-      const keys = Array.from(this.$refs.keepAlive._globalCache.keys());
-      console.log('当前缓存组件:', keys);
-      alert(`当前缓存组件: ${keys.join(', ')}`);
-    }
-  }
-}
-</script>
 ```
 
 ### 4. 跨组件共享缓存
@@ -260,41 +269,42 @@ export default {
 ### 5. 与路由结合使用
 
 ```vue
-<template>
-  <GlobalKeepAlive 
-    ref="keepAlive"
-    :cacheFilter="routeBasedFilter">
-    <router-view />
-  </GlobalKeepAlive>
-</template>
-
 <script>
 export default {
+  watch: {
+    $route(to, from) {
+      // 特定路由变化时清除缓存
+      if (from.path === '/login' && to.path === '/dashboard') {
+        this.$refs.keepAlive._globalCache.clear()
+      }
+    }
+  },
   methods: {
     routeBasedFilter(name) {
       // 根据当前路由决定是否缓存
       if (this.$route.meta.keepAlive === false) {
-        return false;
+        return false
       }
-      
+
       // 根据路由参数决定缓存策略
       if (this.$route.query.nocache) {
-        return false;
+        return false
       }
-      
-      return true;
-    }
-  },
-  watch: {
-    '$route'(to, from) {
-      // 特定路由变化时清除缓存
-      if (from.path === '/login' && to.path === '/dashboard') {
-        this.$refs.keepAlive._globalCache.clear();
-      }
+
+      return true
     }
   }
 }
 </script>
+
+<template>
+  <GlobalKeepAlive
+    ref="keepAlive"
+    :cache-filter="routeBasedFilter"
+  >
+    <router-view />
+  </GlobalKeepAlive>
+</template>
 ```
 
 ## 实际应用示例
@@ -302,25 +312,6 @@ export default {
 ### 标签页缓存控制
 
 ```vue
-<template>
-  <div>
-    <el-tabs v-model="activeTab" @tab-click="handleTabClick">
-      <el-tab-pane 
-        v-for="tab in tabs" 
-        :key="tab.name"
-        :label="tab.label" 
-        :name="tab.name">
-      </el-tab-pane>
-    </el-tabs>
-    
-    <GlobalKeepAlive 
-      ref="keepAlive"
-      :cacheFilter="(name) => name.startsWith(currentTabComponent)">
-      <component :is="currentTabComponent" />
-    </GlobalKeepAlive>
-  </div>
-</template>
-
 <script>
 export default {
   data() {
@@ -335,26 +326,47 @@ export default {
   },
   computed: {
     currentTabComponent() {
-      const tab = this.tabs.find(t => t.name === this.activeTab);
-      return tab ? tab.component : null;
+      const tab = this.tabs.find(t => t.name === this.activeTab)
+      return tab ? tab.component : null
     }
   },
   methods: {
     handleTabClick(tab) {
-      this.activeTab = tab.name;
+      this.activeTab = tab.name
     },
-    
+
     // 关闭标签时清除对应缓存
     closeTab(tabName) {
-      const tab = this.tabs.find(t => t.name === tabName);
+      const tab = this.tabs.find(t => t.name === tabName)
       if (tab) {
         // 清除该标签对应的组件缓存
-        this.$refs.keepAlive._globalCache.remove(tab.component);
+        this.$refs.keepAlive._globalCache.remove(tab.component)
       }
     }
   }
 }
 </script>
+
+<template>
+  <div>
+    <el-tabs v-model="activeTab" @tab-click="handleTabClick">
+      <el-tab-pane
+        v-for="tab in tabs"
+        :key="tab.name"
+        :label="tab.label"
+        :name="tab.name"
+      >
+      </el-tab-pane>
+    </el-tabs>
+
+    <GlobalKeepAlive
+      ref="keepAlive"
+      :cache-filter="(name) => name.startsWith(currentTabComponent)"
+    >
+      <component :is="currentTabComponent" />
+    </GlobalKeepAlive>
+  </div>
+</template>
 ```
 
 ## 最佳实践
@@ -387,8 +399,8 @@ A: 可以手动调用 `clear()` 方法：
 ```javascript
 // 在组件渲染后或路由变化后调用
 this.$nextTick(() => {
-  this.$refs.keepAlive._globalCache.clear(10); // 保留10个
-});
+  this.$refs.keepAlive._globalCache.clear(10) // 保留10个
+})
 ```
 
 ### Q: 为什么组件没有被缓存？
@@ -403,16 +415,17 @@ A: 请检查：
 A: 可以通过重写 `put` 方法实现：
 ```javascript
 // 创建自定义缓存实例
-const cache = new KeepAliveCache();
-const originalPut = cache.put.bind(cache);
-cache.put = function(key, vnode) {
-  const isNew = !this.cache.has(key);
-  originalPut(key, vnode);
-  
+const cache = new KeepAliveCache()
+const originalPut = cache.put.bind(cache)
+cache.put = function (key, vnode) {
+  const isNew = !this.cache.has(key)
+  originalPut(key, vnode)
+
   if (isNew) {
-    console.log(`新组件被缓存: ${key}`);
-  } else {
-    console.log(`组件缓存被更新: ${key}`);
+    console.log(`新组件被缓存: ${key}`)
   }
-};
+  else {
+    console.log(`组件缓存被更新: ${key}`)
+  }
+}
 ```
